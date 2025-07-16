@@ -26,7 +26,7 @@ ThemeData _buildTheme(Brightness brightness) {
     useMaterial3: true,
     brightness: brightness,
     colorScheme: colorScheme,
-    scaffoldBackgroundColor: colorScheme.background,
+    scaffoldBackgroundColor: colorScheme.surface,
     appBarTheme: AppBarTheme(
       backgroundColor: FranceColors.blue,
       foregroundColor: FranceColors.white,
@@ -38,11 +38,11 @@ ThemeData _buildTheme(Brightness brightness) {
       ),
     ),
     textTheme: TextTheme(
-      headlineLarge: TextStyle(color: colorScheme.onBackground),
-      headlineMedium: TextStyle(color: colorScheme.onBackground),
-      titleLarge: TextStyle(color: colorScheme.onBackground),
-      bodyLarge: TextStyle(color: colorScheme.onBackground),
-      bodyMedium: TextStyle(color: colorScheme.onBackground),
+      headlineLarge: TextStyle(color: colorScheme.onSurface),
+      headlineMedium: TextStyle(color: colorScheme.onSurface),
+      titleLarge: TextStyle(color: colorScheme.onSurface),
+      bodyLarge: TextStyle(color: colorScheme.onSurface),
+      bodyMedium: TextStyle(color: colorScheme.onSurface),
       labelLarge: TextStyle(color: colorScheme.onPrimary),
     ),
   );

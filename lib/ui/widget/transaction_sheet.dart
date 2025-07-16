@@ -30,6 +30,7 @@ class TransactionSheet extends StatelessWidget {
     required TransactionType type,
     // required Function(TransactionEntity newTransaction) onSubmit,
     required Command1<void, Failure, TransactionEntity> submitCommand,
+    required TransactionEntity transaction,
   }) async {
     return showModalBottomSheet(
       context: context,

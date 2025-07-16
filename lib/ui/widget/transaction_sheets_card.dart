@@ -14,6 +14,8 @@ class TransactionCardSheets extends StatefulWidget {
   final Function(String id)
   onDelete; // Callback para deletar uma transação pelo ID
 
+  final Function(TransactionEntity transaction) onEdit;
+
   final Command1<void, Failure, TransactionEntity>
   undoDelete; // Callback para desfazer exclusão
   final BuildContext
@@ -26,6 +28,7 @@ class TransactionCardSheets extends StatefulWidget {
     required this.onDelete,
     required this.undoDelete,
     required this.scaffoldContext,
+    required this.onEdit,
   });
 
   @override
@@ -44,8 +47,9 @@ class _TransactionCardSheetsState extends State<TransactionCardSheets>
       vsync: this,
     ); // 2 abas: Receitas e Despesas
     _tabController.addListener(() {
-      if (mounted)
+      if (mounted) {
         setState(() {}); // Atualiza o estado quando troca de aba acontece
+      }
     });
   }
 
@@ -240,7 +244,6 @@ class _TransactionCardSheetsState extends State<TransactionCardSheets>
               ), // Ícone de exclusão
             ),
             onDismissed: (direction) async {
-              
               await widget.onDelete(
                 transaction.id,
               ); // Chama callback para deletar transação
@@ -306,6 +309,12 @@ class _TransactionCardSheetsState extends State<TransactionCardSheets>
                 ), // Borda cinza clara
               ),
               child: ListTile(
+                //ai esse listtile é onegocio qtem atransacao entagntcoloca o onTap
+                onTap: () {
+                  widget.onEdit(
+                    transaction,
+                  ); //  isso tanka a tela de edição laa
+                },
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,

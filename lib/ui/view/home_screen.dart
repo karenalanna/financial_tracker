@@ -18,19 +18,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late HomePageController viewModelController;
-  bool _isFilterVisible = false;
 
   @override
   void initState() {
     viewModelController = injector.get<HomePageController>();
     viewModelController.load.execute();
     super.initState();
-  }
-
-  void _toggleFilterVisibility() {
-    setState(() {
-      _isFilterVisible = !_isFilterVisible;
-    });
   }
 
   @override
@@ -54,13 +47,6 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: viewModelController.toggleFilterVisibility,
             );
           }),
-          // IconButton(
-          //   icon: Icon(
-          //     _isFilterVisible ? Icons.filter_list_off : Icons.filter_list,
-          //   ),
-          //   onPressed: _toggleFilterVisibility,
-          //   tooltip: _isFilterVisible ? 'Ocultar Filtros' : 'Mostrar Filtros',
-          // ),
           IconButton(
             icon: const Icon(Icons.receipt_long),
             onPressed: () {},
@@ -82,18 +68,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 totalExpense: expense,
               );
             }),
-            // SummaryCarousel(totalIncome: 4500.00, totalExpense: 1500.00),
-            // Anima do DataFilterTransactions
-            // a animação será aplicada na altura do container
-            // se _isFilterVisible falso, não tem conteudo para ser mostrado
             Watch((context) {
               final isVisible = viewModelController.isFilterVisible.value;
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                height:
-                    isVisible
-                        ? null
-                        : 0, // se true altura é automática o conteudo, se false altura é 0
+                height: isVisible ? null : 0,
                 child:
                     isVisible
                         ? DateFilterTransactions(
@@ -116,58 +95,45 @@ class _HomeScreenState extends State<HomeScreen> {
                           onAllTransactionsFiltered: () {
                             viewModelController.load.execute();
                           },
-                          onTapHideFilter: _toggleFilterVisibility,
+                          onTapHideFilter:
+                              viewModelController.toggleFilterVisibility,
                         )
-                        : const SizedBox.shrink(), // criar um espaço vazio
+                        : const SizedBox.shrink(),
               );
             }),
-            // AnimatedContainer(
-            //   duration: const Duration(milliseconds: 300),
-            //   height:
-            //       _isFilterVisible
-            //           ? null
-            //           : 0, // se true altura é automática o conteudo, se false altura é 0
-            //   child:
-            //       _isFilterVisible
-            //           ? DateFilterTransactions(
-            //             currentFilter: DateFilterType.all,
-            //             onFilterChanged: (_, _, type) {},
-            //             onTapHideFilter: _toggleFilterVisibility,
-            //           )
-            //           : const SizedBox.shrink(), // criar um espaço vazio
-            // ),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  // Add Income button
                   Expanded(
                     child: _buildActionButton(
                       context,
                       TransactionType.income,
                       Icons.add_circle,
                       colorScheme.primary,
-                      //() {},
-                      () => _showIncomeSheet(context),
+                      () => _showTransactionSheet(
+                        context,
+                        TransactionType.income,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
-                  // Add Expense button
                   Expanded(
                     child: _buildActionButton(
                       context,
                       TransactionType.expense,
                       Icons.remove_circle,
                       colorScheme.secondary,
-                      () => _showExpenseSheet(context),
+                      () => _showTransactionSheet(
+                        context,
+                        TransactionType.expense,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            // Transactions card widget with Income and Expense tabs
             Watch((context) {
-              //final transactions = viewModelController.transctions.value;
               final incomes = viewModelController.incomes.value;
               final expenses = viewModelController.expenses.value;
               return TransactionCardSheets(
@@ -176,41 +142,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 onDelete: (id) {
                   viewModelController.deleteTransaction.execute(id);
                 },
+                onEdit: (transaction) {
+                  TransactionSheet.show(
+                    context: context,
+                    type: transaction.type,
+                    transaction: transaction,
+                    submitCommand: viewModelController.saveTransaction,
+                  );
+                },
                 undoDelete: viewModelController.undoDelectedTransaction,
                 scaffoldContext: context,
               );
             }),
-
-            // TransactionCardSheets(
-            //   incomeTransactions: [
-            //     TransactionEntity(
-            //       title: 'teste',
-            //       amount: 1200.00,
-            //       date: DateTime.now(),
-            //       type: TransactionType.income,
-            //     ),
-            //     TransactionEntity(
-            //       title: 'teste',
-            //       amount: 1200.00,
-            //       date: DateTime.now(),
-            //       type: TransactionType.income,
-            //     ),
-            //     TransactionEntity(
-            //       title: 'teste',
-            //       amount: 1200.00,
-            //       date: DateTime.now(),
-            //       type: TransactionType.income,
-            //     ),
-            //     TransactionEntity(
-            //       title: 'teste',
-            //       amount: 1200.00,
-            //       date: DateTime.now(),
-            //       type: TransactionType.income,
-            //     ),
-            //   ],
-            //   expenseTransactions: [],
-            //   onDelete: (id) {},
-            // ),
             const SizedBox(height: 32),
           ],
         ),
@@ -218,7 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Constrói botões para receitas e despesas
   Widget _buildActionButton(
     BuildContext context,
     TransactionType transactionType,
@@ -238,37 +180,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// Show income transaction sheet
-  void _showIncomeSheet(BuildContext context) {
-    //final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
-
+  void _showTransactionSheet(BuildContext context, TransactionType type) {
     TransactionSheet.show(
       context: context,
-      type: TransactionType.income,
+      type: type,
       submitCommand: viewModelController.saveTransaction,
-      // onSubmit: (newTransaction) {
-      //   viewModelController.saveTransaction.execute(newTransaction);
-      // },
-      // onSubmit: (title, amount, date) {
-      //   transactionProvider.addIncome(title, amount, date);
-      // },
-    );
-  }
-
-  /// Show expense transaction sheet
-  void _showExpenseSheet(BuildContext context) {
-    //final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
-
-    TransactionSheet.show(
-      context: context,
-      type: TransactionType.expense,
-      submitCommand: viewModelController.saveTransaction,
-      // onSubmit: (newTransaction) {
-      //   viewModelController.saveTransaction.execute(newTransaction);
-      // },
-      // onSubmit: (title, amount, date) {
-      //   transactionProvider.addExpense(title, amount, date);
-      // },
+      transaction: TransactionEntity.empty(type),
     );
   }
 }
