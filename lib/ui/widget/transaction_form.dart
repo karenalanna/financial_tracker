@@ -120,7 +120,6 @@ class _TransactionFormState extends State<TransactionForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Campo de entrada para a descrição (título)
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
