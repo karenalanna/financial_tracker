@@ -8,6 +8,7 @@ import 'package:financial_tracker/ui/widget/transaction_sheet.dart';
 import 'package:financial_tracker/ui/widget/transaction_sheets_card.dart';
 import 'package:flutter/material.dart';
 import 'package:signals_flutter/signals_flutter.dart';
+import 'package:financial_tracker/ui/widget/transaction_edit_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,12 +19,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late HomePageController viewModelController;
+  bool _isFilterVisible = false;
 
   @override
   void initState() {
     viewModelController = injector.get<HomePageController>();
     viewModelController.load.execute();
     super.initState();
+  }
+
+  void _toggleFilterVisibility() {
+    setState(() {
+      _isFilterVisible = !_isFilterVisible;
+    });
   }
 
   @override
@@ -95,8 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onAllTransactionsFiltered: () {
                             viewModelController.load.execute();
                           },
-                          onTapHideFilter:
-                              viewModelController.toggleFilterVisibility,
+                          onTapHideFilter: _toggleFilterVisibility,
                         )
                         : const SizedBox.shrink(),
               );
@@ -111,10 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       TransactionType.income,
                       Icons.add_circle,
                       colorScheme.primary,
-                      () => _showTransactionSheet(
-                        context,
-                        TransactionType.income,
-                      ),
+                      () => _showIncomeSheet(context),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -124,10 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       TransactionType.expense,
                       Icons.remove_circle,
                       colorScheme.secondary,
-                      () => _showTransactionSheet(
-                        context,
-                        TransactionType.expense,
-                      ),
+                      () => _showExpenseSheet(context),
                     ),
                   ),
                 ],
@@ -143,13 +144,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   viewModelController.deleteTransaction.execute(id);
                 },
                 onEdit: (transaction) {
-                  TransactionSheet.show(
+                  showModalBottomSheet(
                     context: context,
-                    type: transaction.type,
-                    transaction: transaction,
-                    submitCommand: viewModelController.saveTransaction,
+                    isScrollControlled: true,
+                    builder: (BuildContext ctx) {
+                      return TransactionEditSheet(
+                        transaction: transaction,
+                        onSave: (editedTransaction) {
+                          viewModelController.saveTransaction.execute(
+                            editedTransaction,
+                          );
+                        },
+                      );
+                    },
                   );
                 },
+
                 undoDelete: viewModelController.undoDelectedTransaction,
                 scaffoldContext: context,
               );
@@ -180,12 +190,37 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _showTransactionSheet(BuildContext context, TransactionType type) {
+  void _showIncomeSheet(BuildContext context) {
+    final newTransaction = TransactionEntity(
+      id: '', // id vazio para nova transação, ou gere um id adequado
+      title: '',
+      amount: 0,
+      date: DateTime.now(),
+      type: TransactionType.income,
+    );
+
     TransactionSheet.show(
       context: context,
-      type: type,
+      type: TransactionType.income,
       submitCommand: viewModelController.saveTransaction,
-      transaction: TransactionEntity.empty(type),
+      transaction: newTransaction, // necessário para criar
+    );
+  }
+
+  void _showExpenseSheet(BuildContext context) {
+    final newTransaction = TransactionEntity(
+      id: '',
+      title: '',
+      amount: 0,
+      date: DateTime.now(),
+      type: TransactionType.expense,
+    );
+
+    TransactionSheet.show(
+      context: context,
+      type: TransactionType.expense,
+      submitCommand: viewModelController.saveTransaction,
+      transaction: newTransaction, // necessário para criar
     );
   }
 }
