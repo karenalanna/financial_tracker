@@ -134,16 +134,30 @@ class HomePageController {
     return result;
   }
 
-  // Salva nova transação e atualiza signal
+  // Salva nova transação e atualiza
   Future<Result<void, Failure>> _saveTransaction(
     TransactionEntity transaction,
   ) async {
     final result = await _transactionsUseCases.addTransaction.call((
       transaction: transaction,
     ));
-
+    //fazertudo aqui em um só(lógica do layoutstudentcard)
     if (result.isSuccess) {
-      _transactions.value = [..._transactions.value, transaction];
+      final list = [..._transactions.value];
+
+      final index = list.indexWhere(
+        (t) => t.id == transaction.id,
+      ); //o aquita procurandose existe
+
+      if (index != -1) {
+        // TRANSAÇÃO existe ent att
+        list[index] = transaction;
+      } else {
+        //localizaqn existe na lista ent ele add
+        list.add(transaction);
+      }
+
+      _transactions.value = list;
     }
 
     return result;
@@ -160,7 +174,6 @@ class HomePageController {
       final result = await _transactionsUseCases.addTransaction.call((
         transaction: last,
       ));
-
 
       if (result.isSuccess) {
         final list = [..._transactions.value];

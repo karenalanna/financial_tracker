@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onSave: (editedTransaction) {
                           viewModelController.saveTransaction.execute(
                             editedTransaction,
-                          );
+                          ); //isso serve pra chamar o modal e ai chamar o edit e salvar
                         },
                       );
                     },
@@ -192,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showIncomeSheet(BuildContext context) {
     final newTransaction = TransactionEntity(
-      id: '', // id vazio para nova transação, ou gere um id adequado
+      id: '', //ta criando uma nova transação
       title: '',
       amount: 0,
       date: DateTime.now(),
@@ -203,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       type: TransactionType.income,
       submitCommand: viewModelController.saveTransaction,
-      transaction: newTransaction, // necessário para criar
+      transaction: newTransaction,
     );
   }
 
@@ -220,7 +220,8 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       type: TransactionType.expense,
       submitCommand: viewModelController.saveTransaction,
-      transaction: newTransaction, // necessário para criar
+      transaction:
+          newTransaction, //precisa de ser new ne pq transação com transaçção
     );
   }
 }

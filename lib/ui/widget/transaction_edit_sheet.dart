@@ -31,6 +31,9 @@ class TransactionEditSheet extends StatefulWidget {
 }
 
 class _TransactionEditSheetState extends State<TransactionEditSheet> {
+  //layoutstudentcard
+  final _formKey = GlobalKey<FormState>();
+
   late TextEditingController _titleController;
   late TextEditingController _amountController;
   late DateTime _selectedDate;
@@ -53,13 +56,17 @@ class _TransactionEditSheetState extends State<TransactionEditSheet> {
   }
 
   void _save() {
-    final edited = widget.transaction.copyWith(
-      title: _titleController.text.trim(),
-      amount: double.tryParse(_amountController.text.trim()) ?? 0,
-      date: _selectedDate,
-    );
-    widget.onSave(edited);
-    Navigator.of(context).pop();
+    if (_formKey.currentState?.validate() ?? false) {
+      final edited = widget.transaction.copyWith(
+        title: _titleController.text.trim(), //removebranco
+        amount: double.tryParse(_amountController.text.trim()) ?? 0,
+        date: _selectedDate,
+      );
+      widget.onSave(
+        edited,
+      ); //enviou a transação editada pra edited pra ela ser editada
+      Navigator.of(context).pop();
+    }
   }
 
   Future<void> _pickDate() async {
@@ -148,84 +155,88 @@ class _TransactionEditSheetState extends State<TransactionEditSheet> {
                   bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                   top: 16,
                 ),
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _titleController,
-                      decoration: InputDecoration(
-                        labelText: 'Descrição',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.description),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Informe uma descrição';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    TextFormField(
-                      controller: _amountController,
-                      decoration: InputDecoration(
-                        labelText: 'Valor',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        prefixIcon: const Icon(Icons.attach_money),
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Informe um valor';
-                        }
-                        if (double.tryParse(value) == null) {
-                          return 'Digite um número válido';
-                        }
-                        if (double.parse(value) <= 0) {
-                          return 'O valor deve ser maior que zero';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    Row(
-                      children: [
-                        Text(
-                          'Data: ${_selectedDate.toLocal().toString().split(' ')[0]}',
-                        ),
-                        const SizedBox(width: 8),
-                        TextButton(
-                          onPressed: _pickDate,
-                          child: const Text('Selecionar Data'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Cancelar'),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: _save,
-                          child: const Text('Salvar'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: color,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _titleController,
+                        decoration: InputDecoration(
+                          labelText: 'Descrição',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
+                          prefixIcon: const Icon(Icons.description),
                         ),
-                      ],
-                    ),
-                  ],
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Informe uma descrição';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      TextFormField(
+                        controller: _amountController,
+                        decoration: InputDecoration(
+                          labelText: 'Valor',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: const Icon(Icons.attach_money),
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Informe um valor';
+                          }
+                          if (double.tryParse(value) == null) {
+                            return 'Digite um número válido';
+                          }
+                          if (double.parse(value) <= 0) {
+                            return 'O valor deve ser maior que zero';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
+                      Row(
+                        children: [
+                          Text(
+                            'Data: ${_selectedDate.toLocal().toString().split(' ')[0]}',
+                          ),
+                          const SizedBox(width: 8),
+                          TextButton(
+                            onPressed: _pickDate,
+                            child: const Text('Selecionar Data'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Cancelar'),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: _save,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: color,
+                            ),
+                            child: const Text('Salvar'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
